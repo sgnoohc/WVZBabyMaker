@@ -161,7 +161,7 @@ void babyMaker::CreateOutput()
     tx = new RooUtil::TTreeX(t);
 
     // Below are things related to event weights which must be done before skipping events
-    h_neventsinfile = new TH1F("h_neventsinfile", "", 15, 0, 15);
+    h_neventsinfile = new TH1F("h_neventsinfile", "", 16, 0, 16);
     h_neventsinfile->SetBinContent(0, looper.getTChain()->GetEntries()); // this is the bin with value = -1 underflow
 
     // Below are things related to event weights which must be done before skipping events
@@ -189,6 +189,7 @@ void babyMaker::CreateOutput()
     tx->createBranch<float>("weight_pdf_down");
     tx->createBranch<float>("weight_alphas_down");
     tx->createBranch<float>("weight_alphas_up");
+    tx->createBranch<float>("weight_nominal");
 
 }
 
@@ -241,49 +242,35 @@ void babyMaker::FillGenWeightsNominal()
 
     // Things that don't depend on PDF
     h_neventsinfile->Fill(0., 1.); // event count
-    h_neventsinfile->Fill(14, (cms3.genps_weight() > 0) - (cms3.genps_weight() < 0)); // event count
-
-    //error on pdf replicas
-    if (cms3.genweights().size() > 110)
-    {
-        // average of weights
-        for (int ipdf = 9; ipdf < 109; ipdf++)
-        {
-            average_of_pdf_weights += cms3.genweights().at(ipdf);
-        }
-        average_of_pdf_weights =  average_of_pdf_weights / 100;
-        //std of weights.
-        for (int ipdf = 9; ipdf < 109; ipdf++)
-        {
-            sum_of_pdf_weights += (cms3.genweights().at(ipdf) - average_of_pdf_weights) * (cms3.genweights().at(ipdf) - average_of_pdf_weights);
-        }
-        tx->setBranch<float>("weight_fr_r1_f1", cms3.genweights()[0]);
-        tx->setBranch<float>("weight_fr_r1_f2", cms3.genweights()[1]);
-        tx->setBranch<float>("weight_fr_r1_f0p5", cms3.genweights()[2]);
-        tx->setBranch<float>("weight_fr_r2_f1", cms3.genweights()[3]);
-        tx->setBranch<float>("weight_fr_r2_f2", cms3.genweights()[4]);
-        tx->setBranch<float>("weight_fr_r2_f0p5", cms3.genweights()[5]);
-        tx->setBranch<float>("weight_fr_r0p5_f1", cms3.genweights()[6]);
-        tx->setBranch<float>("weight_fr_r0p5_f2", cms3.genweights()[7]);
-        tx->setBranch<float>("weight_fr_r0p5_f0p5", cms3.genweights()[8]);
-        tx->setBranch<float>("weight_pdf_up", (average_of_pdf_weights + sqrt(sum_of_pdf_weights / 99)));
-        tx->setBranch<float>("weight_pdf_down", (average_of_pdf_weights - sqrt(sum_of_pdf_weights / 99)));
-        tx->setBranch<float>("weight_alphas_down", cms3.genweights()[109]);
-        tx->setBranch<float>("weight_alphas_up", cms3.genweights()[110]);
-        h_neventsinfile->Fill(1, tx->getBranch<float>("weight_fr_r1_f1"));
-        h_neventsinfile->Fill(2, tx->getBranch<float>("weight_fr_r1_f2"));
-        h_neventsinfile->Fill(3, tx->getBranch<float>("weight_fr_r1_f0p5"));
-        h_neventsinfile->Fill(4, tx->getBranch<float>("weight_fr_r2_f1"));
-        h_neventsinfile->Fill(5, tx->getBranch<float>("weight_fr_r2_f2"));
-        h_neventsinfile->Fill(6, tx->getBranch<float>("weight_fr_r2_f0p5"));
-        h_neventsinfile->Fill(7, tx->getBranch<float>("weight_fr_r0p5_f1"));
-        h_neventsinfile->Fill(8, tx->getBranch<float>("weight_fr_r0p5_f2"));
-        h_neventsinfile->Fill(9, tx->getBranch<float>("weight_fr_r0p5_f0p5"));
-        h_neventsinfile->Fill(10, tx->getBranch<float>("weight_pdf_up"));
-        h_neventsinfile->Fill(11, tx->getBranch<float>("weight_pdf_down"));
-        h_neventsinfile->Fill(12, tx->getBranch<float>("weight_alphas_down"));
-        h_neventsinfile->Fill(13, tx->getBranch<float>("weight_alphas_up"));
-    }
+    h_neventsinfile->Fill(15, (cms3.genps_weight() > 0) - (cms3.genps_weight() < 0)); // event count
+    tx->setBranch<float>("weight_fr_r1_f1"     , cms3.gen_LHEweight_QCDscale_muR1_muF1());
+    tx->setBranch<float>("weight_fr_r1_f2"     , cms3.gen_LHEweight_QCDscale_muR1_muF2());
+    tx->setBranch<float>("weight_fr_r1_f0p5"   , cms3.gen_LHEweight_QCDscale_muR1_muF0p5());
+    tx->setBranch<float>("weight_fr_r2_f1"     , cms3.gen_LHEweight_QCDscale_muR2_muF1());
+    tx->setBranch<float>("weight_fr_r2_f2"     , cms3.gen_LHEweight_QCDscale_muR2_muF2());
+    tx->setBranch<float>("weight_fr_r2_f0p5"   , cms3.gen_LHEweight_QCDscale_muR2_muF0p5());
+    tx->setBranch<float>("weight_fr_r0p5_f1"   , cms3.gen_LHEweight_QCDscale_muR0p5_muF1());
+    tx->setBranch<float>("weight_fr_r0p5_f2"   , cms3.gen_LHEweight_QCDscale_muR0p5_muF2());
+    tx->setBranch<float>("weight_fr_r0p5_f0p5" , cms3.gen_LHEweight_QCDscale_muR0p5_muF0p5());
+    tx->setBranch<float>("weight_pdf_up"       , cms3.gen_LHEweight_PDFVariation_Up());
+    tx->setBranch<float>("weight_pdf_down"     , cms3.gen_LHEweight_PDFVariation_Dn());
+    tx->setBranch<float>("weight_alphas_down"  , cms3.gen_LHEweight_AsMZ_Up());
+    tx->setBranch<float>("weight_alphas_up"    , cms3.gen_LHEweight_AsMZ_Dn());
+    tx->setBranch<float>("weight_nominal"      , cms3.genHEPMCweight());
+    h_neventsinfile->Fill(1  , tx->getBranch<float>("weight_fr_r1_f1"));
+    h_neventsinfile->Fill(2  , tx->getBranch<float>("weight_fr_r1_f2"));
+    h_neventsinfile->Fill(3  , tx->getBranch<float>("weight_fr_r1_f0p5"));
+    h_neventsinfile->Fill(4  , tx->getBranch<float>("weight_fr_r2_f1"));
+    h_neventsinfile->Fill(5  , tx->getBranch<float>("weight_fr_r2_f2"));
+    h_neventsinfile->Fill(6  , tx->getBranch<float>("weight_fr_r2_f0p5"));
+    h_neventsinfile->Fill(7  , tx->getBranch<float>("weight_fr_r0p5_f1"));
+    h_neventsinfile->Fill(8  , tx->getBranch<float>("weight_fr_r0p5_f2"));
+    h_neventsinfile->Fill(9  , tx->getBranch<float>("weight_fr_r0p5_f0p5"));
+    h_neventsinfile->Fill(10 , tx->getBranch<float>("weight_pdf_up"));
+    h_neventsinfile->Fill(11 , tx->getBranch<float>("weight_pdf_down"));
+    h_neventsinfile->Fill(12 , tx->getBranch<float>("weight_alphas_down"));
+    h_neventsinfile->Fill(13 , tx->getBranch<float>("weight_alphas_up"));
+    h_neventsinfile->Fill(14 , tx->getBranch<float>("weight_nominal"));
 }
 
 //##############################################################################################################
