@@ -106,6 +106,12 @@ def get_master_list():
             "baby_type" : "Trilep"
             }
 
+    dinfos["dilep_2016_94x"] = {
+            "samples" : sample_info,
+            "year" : 2016,
+            "baby_type" : "Dilep"
+            }
+
     dinfos["wvzmva_2016_94x"] = {
             "samples" : sample_info,
             "year" : 2016,
@@ -211,6 +217,12 @@ def get_master_list():
             "samples" : sample_info,
             "year" : 2017,
             "baby_type" : "Trilep"
+            }
+
+    dinfos["dilep_2017_94x"] = {
+            "samples" : sample_info,
+            "year" : 2017,
+            "baby_type" : "Dilep"
             }
 
     dinfos["wvzmva_2017_94x"] = {
@@ -459,6 +471,10 @@ if __name__ == "__main__":
         master_list["trilep_2016_94x"] = grand_master_list["trilep_2016_94x"]
     if "Dilep2018" in args.sample_sets:
         master_list["dilep_2018_102x"] = grand_master_list["dilep_2018_102x"]
+    if "Dilep2017" in args.sample_sets:
+        master_list["dilep_2017_94x"] = grand_master_list["dilep_2017_94x"]
+    if "Dilep2016" in args.sample_sets:
+        master_list["dilep_2016_94x"] = grand_master_list["dilep_2016_94x"]
     if "WVZMVA2018" in args.sample_sets:
         master_list["wvzmva_2018_102x"] = grand_master_list["wvzmva_2018_102x"]
     if "WVZMVA2017" in args.sample_sets:
