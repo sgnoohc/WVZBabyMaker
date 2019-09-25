@@ -131,6 +131,9 @@ void wvzBabyMaker::ProcessObjectsPostPassSelection()
     // Loop over Jets
     ProcessJets();
 
+    // Loop over Fat Jets
+    ProcessFatJets();
+
     // Loop over charged particle candidates
     ProcessTracks();
 

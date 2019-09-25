@@ -50,6 +50,7 @@ void wvzModule::GenPartModule::FillOutput()
 
     bool doProcess = false;
     if (babymaker->looper.getCurrentFileName().Contains("WWZ_")) doProcess = true;
+    if (babymaker->looper.getCurrentFileName().Contains("ZZZ_")) doProcess = true;
     if (babymaker->looper.getCurrentFileName().Contains("WWZJets")) doProcess = true;
     if (babymaker->looper.getCurrentFileName().Contains("VHToNonbb")) doProcess = true;
 
