@@ -33,6 +33,8 @@ void wvzModule::LeptonModule::AddOutput()
     tx->createBranch<vector<int>>("lep_id");
     tx->createBranch<vector<int>>("lep_isWVZVeto");
     tx->createBranch<vector<int>>("lep_isWVZNominal");
+    tx->createBranch<vector<int>>("lep_isVVVVeto");
+    tx->createBranch<vector<int>>("lep_isVVVNominal");
     tx->createBranch<vector<int>>("lep_isTightPOG");
     tx->createBranch<vector<int>>("lep_isMediumPOG");
     tx->createBranch<vector<int>>("lep_isMVAwp80NoIsoPOG");
@@ -101,6 +103,8 @@ void wvzModule::LeptonModule::FillOutput()
         tx->pushbackToBranch<int>("lep_id", cms3.els_charge()[idx]*(-11));
         tx->pushbackToBranch<int>("lep_isWVZVeto", babymaker->isPt10AnalysisVetoElectron(idx));
         tx->pushbackToBranch<int>("lep_isWVZNominal", babymaker->isPt10AnalysisNominalElectron(idx));
+        tx->pushbackToBranch<int>("lep_isVVVVeto", babymaker->isPt10VVVAnalysisVetoElectron(idx));
+        tx->pushbackToBranch<int>("lep_isVVVNominal", babymaker->isPt10VVVAnalysisNominalElectron(idx));
         tx->pushbackToBranch<int>("lep_isTightPOG", isMVAwp80NoIsofall17V2(idx, true));
         tx->pushbackToBranch<int>("lep_isMediumPOG", isMVAwp90NoIsofall17V2(idx, true));
         tx->pushbackToBranch<int>("lep_isMVAwp80NoIsoPOG"    , isMVAwp80NoIsofall17V2(idx));
@@ -165,6 +169,8 @@ void wvzModule::LeptonModule::FillOutput()
         tx->pushbackToBranch<int>("lep_id", cms3.mus_charge()[idx]*(-13));
         tx->pushbackToBranch<int>("lep_isWVZVeto", babymaker->isPt10AnalysisVetoMuon(idx));
         tx->pushbackToBranch<int>("lep_isWVZNominal", babymaker->isPt10AnalysisNominalMuon(idx));
+        tx->pushbackToBranch<int>("lep_isVVVVeto", babymaker->isPt10VVVAnalysisVetoMuon(idx));
+        tx->pushbackToBranch<int>("lep_isVVVNominal", babymaker->isPt10VVVAnalysisNominalMuon(idx));
         tx->pushbackToBranch<int>("lep_isTightPOG", isTightMuonPOG(idx));
         tx->pushbackToBranch<int>("lep_isMediumPOG", isMediumMuonPOG(idx));
         tx->pushbackToBranch<int>("lep_isMVAwp80NoIsoPOG"       , true);
@@ -212,6 +218,8 @@ void wvzModule::LeptonModule::FillOutput()
             "lep_id",
             "lep_isWVZVeto",
             "lep_isWVZNominal",
+            "lep_isVVVVeto",
+            "lep_isVVVNominal",
             "lep_isTightPOG",
             "lep_isMediumPOG",
             "lep_isMVAwp80NoIsoPOG",

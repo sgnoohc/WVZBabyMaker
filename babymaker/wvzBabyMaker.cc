@@ -154,7 +154,7 @@ void wvzBabyMaker::ProcessElectrons()
             coreElectron.process(isPt10VeryLooserThanPOGVetoElectron);
             break;
         case kWVZMVA:
-            coreElectron.process(isPt10POGMVAwpLooseElectron);
+            coreElectron.process(isPt10VVVAnalysisVetoElectron);
             break;
         case kTruth:
             coreElectron.process(isPt10POGMVAwpLooseElectron);
@@ -180,7 +180,7 @@ void wvzBabyMaker::ProcessMuons()
             coreMuon.process(isPt10VeryLooserThanPOGVetoMuon);
             break;
         case kWVZMVA:
-            coreMuon.process(isPt10POGVetoMuon);
+            coreMuon.process(isPt10VVVAnalysisVetoMuon);
             break;
         case kTruth:
             coreMuon.process(isPt10POGVetoMuon);
@@ -301,25 +301,25 @@ bool wvzBabyMaker::PassSelection()
     {
         if (coreElectron.index.size() + coreMuon.index.size() < 4)
             return false;
+        int nVetoLep = 0;
         int nLepPt25 = 0;
-        int nLepPt20 = 0;
         for (auto& iel : coreElectron.index)
         {
             if (cms3.els_p4()[iel].pt() > 25.)
                 nLepPt25++;
-            if (cms3.els_p4()[iel].pt() > 20.)
-                nLepPt20++;
+            if (isPt10VVVAnalysisVetoElectron(iel))
+                nVetoLep++;
         }
         for (auto& imu : coreMuon.index)
         {
             if (cms3.mus_p4()[imu].pt() > 25.)
                 nLepPt25++;
-            if (cms3.mus_p4()[imu].pt() > 20.)
-                nLepPt20++;
+            if (isPt10VVVAnalysisVetoMuon(imu))
+                nVetoLep++;
         }
-        if (nLepPt25 < 1)
+        if (nVetoLep < 4)
             return false;
-        if (nLepPt20 < 2)
+        if (nLepPt25 < 2)
             return false;
         return true;
     }
@@ -359,7 +359,7 @@ void wvzBabyMaker::AddOutput()
         processor->AddModule(new wvzModule::JetModule(this));
         processor->AddModule(new wvzModule::FatJetModule(this));
         processor->AddModule(new wvzModule::AnalysisVariableModule(this));
-        if (babyMode == kWVZ or babyMode == kWVZAll)
+        if (babyMode == kWVZ or babyMode == kWVZAll or babyMode == kWVZMVA)
         {
             processor->AddModule(new wvzModule::BDTInputVariableModule(this));
             processor->AddModule(new wvzModule::BDTModule(this));
@@ -632,7 +632,69 @@ bool wvzBabyMaker::isPt10AnalysisNominalElectron(int idx)
 bool wvzBabyMaker::isPt10AnalysisNominalMuon(int idx)
 {
     if (not( isPt10POGVetoMuon(idx)      )) return false;
-    if (not( muRelIso04DB(idx)  < 0.25   )) return false;
+    if (not( muRelIso04DB(idx)  < 0.15   )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VeryLooserThanVVVAnalysisVetoElectron(int idx)
+{
+    if (!( cms3.els_p4()[idx].pt() > 10.          )) return false;
+    if (!( isMVAwpLooseNoIsofall17V2(idx, true)   )) return false;
+    if (!( fabs(cms3.els_p4()[idx].eta()) < 2.5   )) return false;
+    if (!( fabs(cms3.els_dxyPV()[idx]) < 0.05     )) return false;
+    if (!( fabs(cms3.els_dzPV()[idx]) < 0.1       )) return false;
+    // if (!( eleRelIso03EA(idx, 4, true) < 0.4      )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VeryLooserThanVVVAnalysisVetoMuon(int idx)
+{
+    if (!( cms3.mus_p4()[idx].pt() > 10.          )) return false;
+    if (!( isLooseMuonPOG(idx)                    )) return false;
+    if (!( fabs(cms3.mus_p4()[idx].eta()) < 2.4   )) return false;
+    if (!( fabs(cms3.mus_dxyPV()[idx]) < 0.05     )) return false;
+    if (!( fabs(cms3.mus_dzPV()[idx]) < 0.1       )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VVVAnalysisVetoElectron(int idx)
+{
+    if (!( isPt10VeryLooserThanVVVAnalysisVetoElectron(idx) )) return false;
+    if (!( eleRelIso03EA(idx, 4, true) < 0.4                )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VVVAnalysisVetoMuon(int idx)
+{
+    if (!( isPt10VeryLooserThanVVVAnalysisVetoMuon(idx) )) return false;
+    if (!( muRelIso03EA(idx, 4, true) < 0.4             )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VVVAnalysisNominalElectron(int idx)
+{
+    if (!( isPt10VVVAnalysisVetoElectron(idx) )) return false;
+    if (!( eleRelIso03EA(idx, 4, true) < 0.4  )) return false;
+    return true;
+}
+
+//##############################################################################################################
+// Very Loose Lepton ID
+bool wvzBabyMaker::isPt10VVVAnalysisNominalMuon(int idx)
+{
+    if (!( isPt10VVVAnalysisVetoMuon(idx)   )) return false;
+    if (!( isMediumMuonPOG(idx)             )) return false;
+    if (!( muRelIso04DB(idx)  < 0.15        )) return false;
     return true;
 }
 
@@ -693,6 +755,41 @@ bool wvzBabyMaker::isPOGLeptonOverlappingWithJet(int ijet)
     {
         const LV& p4 = cms3.mus_p4()[ilep];
         if (!( isPt10POGVetoMuon(ilep) )) continue;
+        if (ROOT::Math::VectorUtil::DeltaR(jet_p4, p4) < 0.4)
+        {
+            is_overlapping = true;
+            break;
+        }
+    }
+
+    if (is_overlapping)
+        return true;
+
+    return false;
+}
+
+//##############################################################################################################
+bool wvzBabyMaker::isVVVAnalysisLeptonOverlappingWithJet(int ijet)
+{
+    bool is_overlapping = false;
+    int idx = coreJet.index[ijet];
+    const LV& jet_p4 = cms3.pfjets_p4()[idx];
+
+    for (unsigned ilep = 0; ilep < cms3.els_p4().size(); ++ilep)
+    {
+        const LV& p4 = cms3.els_p4()[ilep];
+        if (!( isPt10VVVAnalysisVetoElectron(ilep) )) continue;
+        if (ROOT::Math::VectorUtil::DeltaR(jet_p4, p4) < 0.4)
+        {
+            is_overlapping = true;
+            break;
+        }
+    }
+
+    for (unsigned ilep = 0; ilep < cms3.mus_p4().size(); ++ilep)
+    {
+        const LV& p4 = cms3.mus_p4()[ilep];
+        if (!( isPt10VVVAnalysisVetoMuon(ilep) )) continue;
         if (ROOT::Math::VectorUtil::DeltaR(jet_p4, p4) < 0.4)
         {
             is_overlapping = true;

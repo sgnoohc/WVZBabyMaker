@@ -155,7 +155,7 @@ void wvzModule::JetModule::FillOutput()
                 if (babymaker->isPOGLeptonOverlappingWithJet(ijet)) continue;
                 break;
             case wvzBabyMaker::kWVZMVA:
-                if (babymaker->isMVAPOGLeptonOverlappingWithJet(ijet)) continue;
+                if (babymaker->isVVVAnalysisLeptonOverlappingWithJet(ijet)) continue;
                 break;
             case wvzBabyMaker::kWVZAll:
                 if (babymaker->isPOGLeptonOverlappingWithJet(ijet)) continue;
