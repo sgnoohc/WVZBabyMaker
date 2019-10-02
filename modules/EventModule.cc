@@ -11,7 +11,7 @@ void wvzModule::EventModule::AddOutput()
     tx->createBranch<int>("firstgoodvertex");
     tx->createBranch<int>("nvtx");
     tx->createBranch<int>("nTrueInt");
-    tx->createBranch<float>("lumi");
+    tx->createBranch<float>("lumival");
     tx->createBranch<float>("puwgt");
     tx->createBranch<float>("puwgt_up");
     tx->createBranch<float>("puwgt_dn");
@@ -39,13 +39,13 @@ void wvzModule::EventModule::FillOutput()
 
     // N True interaction for pileup reweighting
     if (cms3.evt_isRealData())
-        tx->setBranch<float>("lumi", 1);
+        tx->setBranch<float>("lumival", 1);
     else if (gconf.year == 2016)
-        tx->setBranch<float>("lumi", 35.9);
+        tx->setBranch<float>("lumival", 35.9);
     else if (gconf.year == 2017)
-        tx->setBranch<float>("lumi", 41.3);
+        tx->setBranch<float>("lumival", 41.3);
     else if (gconf.year == 2018)
-        tx->setBranch<float>("lumi", 59.74);
+        tx->setBranch<float>("lumival", 59.74);
 
     // puwgt
     if (cms3.evt_isRealData())

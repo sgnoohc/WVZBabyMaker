@@ -170,6 +170,7 @@ void babyMaker::CreateOutput()
     tx->createBranch<unsigned long long>("evt");
     tx->createBranch<int>("isData");
     tx->createBranch<float>("evt_scale1fb");
+    tx->createBranch<int>("nevents");
     tx->createBranch<float>("genps_weight");
     tx->createBranch<float>("xsec_br");
     tx->createBranch<int>("evt_passgoodrunlist");
@@ -358,6 +359,7 @@ void babyMaker::FillEventInfo()
     if (cms3.evt_isRealData())
     {
         tx->setBranch<float>("evt_scale1fb", 1);
+        tx->setBranch<int>("nevents", 1);
         tx->setBranch<float>("genps_weight", 1);
         tx->setBranch<float>("xsec_br", 1);
         tx->setBranch<int>("evt_passgoodrunlist", goodrun(cms3.evt_run(), cms3.evt_lumiBlock()));
@@ -366,7 +368,9 @@ void babyMaker::FillEventInfo()
     {
         float scale1fb = coreDatasetInfo.getScale1fb();
         float xsec = coreDatasetInfo.getXsec();
+        int nevents = coreDatasetInfo.getNEvents();
         tx->setBranch<float>("evt_scale1fb", scale1fb);
+        tx->setBranch<int>("nevents", nevents);
         tx->setBranch<float>("genps_weight", cms3.genps_weight());
         tx->setBranch<float>("xsec_br", xsec);
         tx->setBranch<int>("evt_passgoodrunlist", true);

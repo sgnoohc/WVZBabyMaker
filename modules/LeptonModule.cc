@@ -22,6 +22,7 @@ void wvzModule::LeptonModule::AddOutput()
     tx->createBranch<vector<float>>("lep_relIso03EA");
     tx->createBranch<vector<float>>("lep_relIso03EAv4");
     tx->createBranch<vector<float>>("lep_relIso03EAwLep");
+    tx->createBranch<vector<float>>("lep_relIso03EAv4wLep");
     tx->createBranch<vector<float>>("lep_ip3d");
     tx->createBranch<vector<float>>("lep_sip3d");
     tx->createBranch<vector<float>>("lep_dxy");
@@ -74,6 +75,7 @@ void wvzModule::LeptonModule::FillOutput()
         tx->pushbackToBranch<float>("lep_relIso03EA", eleRelIso03EA(idx, gconf.ea_version, false));
         tx->pushbackToBranch<float>("lep_relIso03EAv4", eleRelIso03EA(idx, 4, false));
         tx->pushbackToBranch<float>("lep_relIso03EAwLep", eleRelIso03EA(idx, gconf.ea_version, true));
+        tx->pushbackToBranch<float>("lep_relIso03EAv4wLep", eleRelIso03EA(idx, 4, true));
         tx->pushbackToBranch<float>("lep_ip3d", cms3.els_ip3d()[idx]);
         tx->pushbackToBranch<float>("lep_sip3d", cms3.els_ip3d()[idx] / cms3.els_ip3derr()[idx]);
         tx->pushbackToBranch<float>("lep_dxy", cms3.els_dxyPV()[idx]);
@@ -140,6 +142,7 @@ void wvzModule::LeptonModule::FillOutput()
         tx->pushbackToBranch<float>("lep_relIso03EA", muRelIso03EA(idx, gconf.ea_version, false));
         tx->pushbackToBranch<float>("lep_relIso03EAv4", muRelIso03EA(idx, 4, false));
         tx->pushbackToBranch<float>("lep_relIso03EAwLep", muRelIso03EA(idx, gconf.ea_version, true));
+        tx->pushbackToBranch<float>("lep_relIso03EAv4wLep", muRelIso03EA(idx, 4, true));
         tx->pushbackToBranch<float>("lep_ip3d", cms3.mus_ip3d()[idx]);
         tx->pushbackToBranch<float>("lep_sip3d", cms3.mus_ip3d()[idx] / cms3.mus_ip3derr()[idx]);
         tx->pushbackToBranch<float>("lep_dxy", cms3.mus_dxyPV()[idx]);
@@ -205,6 +208,7 @@ void wvzModule::LeptonModule::FillOutput()
             "lep_relIso03EA",
             "lep_relIso03EAv4",
             "lep_relIso03EAwLep",
+            "lep_relIso03EAv4wLep",
             "lep_ip3d",
             "lep_sip3d",
             "lep_dxy",

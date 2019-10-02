@@ -28,6 +28,7 @@ void wvzModule::JetModule::AddOutput()
     tx->createBranch<vector<float>>("rawjets_phi");
     tx->createBranch<vector<float>>("rawjets_mass");
     tx->createBranch<vector<float>>("rawjets_JEC");
+    tx->createBranch<vector<float>>("rawjets_btag_score");
     tx->createBranch<vector<int>>("rawjets_passJetID");
     tx->createBranch<vector<int>>("rawjets_isORwLep");
 
@@ -118,6 +119,9 @@ void wvzModule::JetModule::FillOutput()
             passJetID = isTightPFJet_2018_v1(idx);
         }
 
+        // Get the b-tagging value
+        float current_btag_score_val = cms3.pfjets_pfDeepCSVJetTagsprobbPlusprobbb()[ijet];
+
         LV rawjet = cms3.pfjets_p4()[idx] * cms3.pfjets_undoJEC()[idx];
         tx->pushbackToBranch<LV>("rawjets_p4", rawjet);
         tx->pushbackToBranch<float>("rawjets_pt", rawjet.pt());
@@ -125,6 +129,7 @@ void wvzModule::JetModule::FillOutput()
         tx->pushbackToBranch<float>("rawjets_phi", rawjet.phi());
         tx->pushbackToBranch<float>("rawjets_mass", rawjet.mass());
         tx->pushbackToBranch<float>("rawjets_JEC", corr);
+        tx->pushbackToBranch<float>("rawjets_btag_score", current_btag_score_val);
         tx->pushbackToBranch<int>("rawjets_passJetID", passJetID);
         tx->pushbackToBranch<int>("rawjets_isORwLep", babymaker->isPOGLeptonOverlappingWithJet(ijet));
 
@@ -135,7 +140,6 @@ void wvzModule::JetModule::FillOutput()
         float shift = babymaker->coreJet.shifts[ijet];
 
         // Get the b-tagging value
-        float current_btag_score_val = cms3.pfjets_pfDeepCSVJetTagsprobbPlusprobbb()[ijet];
         int hadron_flavor = cms3.pfjets_hadronFlavour()[ijet];
 
         LV jet = cms3.pfjets_p4()[idx] * cms3.pfjets_undoJEC()[idx] * corr;
@@ -357,6 +361,7 @@ void wvzModule::JetModule::FillOutput()
             "rawjets_phi",
             "rawjets_mass",
             "rawjets_JEC"
+            "rawjets_btag_score"
             },
             {
             "rawjets_passJetID",
