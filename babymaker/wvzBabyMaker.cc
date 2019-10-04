@@ -154,7 +154,7 @@ void wvzBabyMaker::ProcessElectrons()
             coreElectron.process(isPt10VeryLooserThanPOGVetoElectron);
             break;
         case kWVZMVA:
-            coreElectron.process(isPt10VVVAnalysisVetoElectron);
+            coreElectron.process(isPt10VeryLooserThanVVVAnalysisVetoElectron);
             break;
         case kTruth:
             coreElectron.process(isPt10POGMVAwpLooseElectron);
@@ -180,7 +180,7 @@ void wvzBabyMaker::ProcessMuons()
             coreMuon.process(isPt10VeryLooserThanPOGVetoMuon);
             break;
         case kWVZMVA:
-            coreMuon.process(isPt10VVVAnalysisVetoMuon);
+            coreMuon.process(isPt10VeryLooserThanVVVAnalysisVetoMuon);
             break;
         case kTruth:
             coreMuon.process(isPt10POGVetoMuon);
