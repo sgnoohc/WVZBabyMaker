@@ -55,9 +55,9 @@ void babyMaker::ScanChain(bool verbose)
     while (looper.nextEvent())
     {
 
-        // Try catch statement there to catch any CMS4 ntuple TTree event I/O failure
-        try
-        {
+        // // Try catch statement there to catch any CMS4 ntuple TTree event I/O failure
+        // try
+        // {
 
             // If verbose print progress
             if (verbose)
@@ -78,33 +78,33 @@ void babyMaker::ScanChain(bool verbose)
             // Fill the gen level weights (calling after Process() in order to account for skipped events)
             FillGenWeights();
 
-        }
-        catch (const std::ios_base::failure& e)
-        {
+        // }
+        // catch (const std::ios_base::failure& e)
+        // {
 
-            // If data events and a failure is detected, we need to completely fail it.
-            // We cannot lose any single data events.
-            if (coreSample.is2016Data(looper.getCurrentFileName()) || coreSample.is2017Data(looper.getCurrentFileName()) || coreSample.is2018Data(looper.getCurrentFileName()))
-            {
-                std::cout << std::endl;
-                std::cout << "Found bad event in data" << std::endl;
-                FATALERROR(__FUNCTION__);
-                exit(2);
-            }
-            // If not data events (i.e. MC events) we can tolerate a little.
-            // Previous Looper::setNbadEventThreshold() function setting will dictatate whether to accept or fail
-            else
-            {
+        //     // If data events and a failure is detected, we need to completely fail it.
+        //     // We cannot lose any single data events.
+        //     if (coreSample.is2016Data(looper.getCurrentFileName()) || coreSample.is2017Data(looper.getCurrentFileName()) || coreSample.is2018Data(looper.getCurrentFileName()))
+        //     {
+        //         std::cout << std::endl;
+        //         std::cout << "Found bad event in data" << std::endl;
+        //         FATALERROR(__FUNCTION__);
+        //         exit(2);
+        //     }
+        //     // If not data events (i.e. MC events) we can tolerate a little.
+        //     // Previous Looper::setNbadEventThreshold() function setting will dictatate whether to accept or fail
+        //     else
+        //     {
 
-                tx->clear(); // clear the TTree of any residual stuff
+        //         tx->clear(); // clear the TTree of any residual stuff
 
-                // If the number of events that has been skipped reaches a threshold set by Looper::setNbadEventThreshold(),
-                // we skip the input ntuple entirely. This is because some inputs are just bad and the entire file will
-                // keep throwing exceptions.
-                if (!looper.handleBadEvent())
-                    break;
-            }
-        }
+        //         // If the number of events that has been skipped reaches a threshold set by Looper::setNbadEventThreshold(),
+        //         // we skip the input ntuple entirely. This is because some inputs are just bad and the entire file will
+        //         // keep throwing exceptions.
+        //         if (!looper.handleBadEvent())
+        //             break;
+        //     }
+        // }
     }
 
     // Print status before exiting (for monitoring performance)
