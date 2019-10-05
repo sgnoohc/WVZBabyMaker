@@ -3,27 +3,23 @@
 using namespace std;
 
 //##############################################################################################################
-babyMaker::babyMaker()
+babyMaker::babyMaker() : ofile(0), t(0), h_neventsinfile(0), tx(0)
 {
 }
 
 //##############################################################################################################
 babyMaker::~babyMaker()
 {
+    if (ofile)
+        ofile->Close();
 }
 
 //##############################################################################################################
 int babyMaker::ProcessCMS4(TString filepaths, int max_events, int idx, bool verbose)
 {
 
-    // Create TChain to process
-    //   - From the filepaths (e.g. filepaths="file.root,file2.root,...") create a TChain
-    TChain* chain = RooUtil::FileUtil::createTChain("Events", filepaths);
-
-    // Initialize Looper
-    looper.init(chain, &cms3, max_events);
-//    looper.setNbadEventThreshold(0); // If there are any bad events throw std::ios_base::failure exception.
-    looper.setEventIndexMap("eventindexmap.txt");
+    // Create output (e.g. output TFile, TTree, nevents histograms)
+    CreateOutput();
 
     // Initializer job index
     job_index = idx;
@@ -33,7 +29,10 @@ int babyMaker::ProcessCMS4(TString filepaths, int max_events, int idx, bool verb
     // Run the loop !
     //
     //
-    ScanChain(verbose);
+    ScanChain(filepaths, max_events, verbose);
+
+    // Save the output
+    SaveOutput();
 
     // Exit
     return 0;
@@ -42,76 +41,86 @@ int babyMaker::ProcessCMS4(TString filepaths, int max_events, int idx, bool verb
 
 //##############################################################################################################
 std::once_flag flag_init; // a flag for std::call_once
-void babyMaker::ScanChain(bool verbose)
+void babyMaker::ScanChain(TString filepaths, int max_events, bool verbose)
 {
 
-    // Create output (e.g. output TFile, TTree, nevents histograms)
-    CreateOutput();
-
-    // The looper object will handle accessing each events
-    // The CMS3.cc object throws std::ios_base::failure exception if the input CMS3/4 files are corrupted.
-    // For Monte Carlo events, we can tolerate some percentage of failures as long as we take care of them properly.
-    // For data events, this is not acceptable. So we call FATALERROR and exit the program altogether with status code = 2
-    while (looper.nextEvent())
+    for (auto& filepath : RooUtil::StringUtil::split(filepaths, ","))
     {
 
-        // // Try catch statement there to catch any CMS4 ntuple TTree event I/O failure
-        // try
-        // {
+        std::cout <<  " filepath: " << filepath <<  std::endl;
 
-            // If verbose print progress
-            if (verbose)
-                cout << "[verbose] Processed " << looper.getNEventsProcessed() << " out of " << looper.getTChain()->GetEntries() << endl;
+        // Create TChain to process
+        //   - From the filepaths (e.g. filepaths="file.root,file2.root,...") create a TChain
+        TChain* chain = RooUtil::FileUtil::createTChain("Events", filepath);
 
-            // Some of the sample specific things need to be set prior to processing the very first event
-            // Those are called inside Init, they have explicit "call_once" feature
-            // The reason this is inside the loop is because it first need to access the file name before
-            std::call_once(flag_init, &babyMaker::Init, this);
+        // Initialize Looper
+        looper.init(chain, &cms3, max_events);
 
-            // In case we need to filter out events based on the event list
-            if (not PassEventList())
+        // Try catch statement there to catch any CMS4 ntuple TTree event I/O failure
+        try
+        {
+
+            // The looper object will handle accessing each events
+            // The CMS3.cc object throws std::ios_base::failure exception if the input CMS3/4 files are corrupted.
+            // For Monte Carlo events, we can tolerate some percentage of failures as long as we take care of them properly.
+            // For data events, this is not acceptable. So we call FATALERROR and exit the program altogether with status code = 2
+            while (looper.nextEvent())
+            {
+
+
+                // If verbose print progress
+                if (verbose)
+                    cout << "[verbose] Processed " << looper.getNEventsProcessed() << " out of " << looper.getTChain()->GetEntries() << endl;
+
+                // Some of the sample specific things need to be set prior to processing the very first event
+                // Those are called inside Init, they have explicit "call_once" feature
+                // The reason this is inside the loop is because it first need to access the file name before
+                std::call_once(flag_init, &babyMaker::Init, this);
+
+                // Now process the baby ntuples
+                Process();
+
+                // Fill the gen level weights (calling after Process() in order to account for skipped events)
+                FillGenWeights();
+
+            }
+
+        }
+        catch (const std::ios_base::failure& e)
+        {
+
+            // If data events and a failure is detected, we need to completely fail it.
+            // We cannot lose any single data events.
+            if (coreSample.is2016Data(looper.getCurrentFileName()) || coreSample.is2017Data(looper.getCurrentFileName()) || coreSample.is2018Data(looper.getCurrentFileName()))
+            {
+                std::cout << std::endl;
+                std::cout << "Found bad event in data" << std::endl;
+                FATALERROR(__FUNCTION__);
+                exit(2);
+            }
+            // If not data events (i.e. MC events) we can tolerate a little.
+            // Previous Looper::setNbadEventThreshold() function setting will dictatate whether to accept or fail
+            else
+            {
+
+                tx->clear(); // clear the TTree of any residual stuff
+
+                std::cout << "Bad event found. Skip the file" << std::endl;
+
                 continue;
 
-            // Now process the baby ntuples
-            Process();
+                // // If the number of events that has been skipped reaches a threshold set by Looper::setNbadEventThreshold(),
+                // // we skip the input ntuple entirely. This is because some inputs are just bad and the entire file will
+                // // keep throwing exceptions.
+                // if (!looper.handleBadEvent())
+                //     break;
+            }
+        }
 
-            // Fill the gen level weights (calling after Process() in order to account for skipped events)
-            FillGenWeights();
+        // Print status before exiting (for monitoring performance)
+        looper.printStatus();
 
-        // }
-        // catch (const std::ios_base::failure& e)
-        // {
-
-        //     // If data events and a failure is detected, we need to completely fail it.
-        //     // We cannot lose any single data events.
-        //     if (coreSample.is2016Data(looper.getCurrentFileName()) || coreSample.is2017Data(looper.getCurrentFileName()) || coreSample.is2018Data(looper.getCurrentFileName()))
-        //     {
-        //         std::cout << std::endl;
-        //         std::cout << "Found bad event in data" << std::endl;
-        //         FATALERROR(__FUNCTION__);
-        //         exit(2);
-        //     }
-        //     // If not data events (i.e. MC events) we can tolerate a little.
-        //     // Previous Looper::setNbadEventThreshold() function setting will dictatate whether to accept or fail
-        //     else
-        //     {
-
-        //         tx->clear(); // clear the TTree of any residual stuff
-
-        //         // If the number of events that has been skipped reaches a threshold set by Looper::setNbadEventThreshold(),
-        //         // we skip the input ntuple entirely. This is because some inputs are just bad and the entire file will
-        //         // keep throwing exceptions.
-        //         if (!looper.handleBadEvent())
-        //             break;
-        //     }
-        // }
     }
-
-    // Print status before exiting (for monitoring performance)
-    looper.printStatus();
-
-    // Save the output
-    SaveOutput();
 
     return;
 }
@@ -158,11 +167,11 @@ void babyMaker::CreateOutput()
 {
     ofile = new TFile(Form("output_%d.root", job_index), "recreate");
     t = new TTree("t", "All events");
-    tx = new RooUtil::TTreeX(t);
-
     // Below are things related to event weights which must be done before skipping events
     h_neventsinfile = new TH1F("h_neventsinfile", "", 16, 0, 16);
-    h_neventsinfile->SetBinContent(0, looper.getTChain()->GetEntries()); // this is the bin with value = -1 underflow
+    // h_neventsinfile->SetBinContent(0, looper.getTChain()->GetEntries()); // this is the bin with value = -1 underflow
+
+    tx = new RooUtil::TTreeX(t);
 
     // Below are things related to event weights which must be done before skipping events
     tx->createBranch<Int_t>("run");

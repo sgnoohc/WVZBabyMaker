@@ -129,7 +129,7 @@ public:
 
     int ProcessCMS4(TString filepaths, int max_events = -1, int index = 1, bool verbose = false);
 
-    void ScanChain(bool verbose = false);
+    void ScanChain(TString filepaths, int max_events = -1, bool verbose = false);
     void Init();
     void SetYear();
     void CreateOutput();
