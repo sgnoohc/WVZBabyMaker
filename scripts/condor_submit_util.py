@@ -137,7 +137,7 @@ def create_tar_ball(year, baby_type, baby_version_tag):
     os.chdir(main_dir)
     exists = os.path.isfile(tar_gz_path)
     if not exists:
-        os.system("tar -chzf {} ../setup.sh ../processBaby ../coreutil/data ../CORE/Tools/ ../rooutil/*.sh ../rooutil/hadd.py ../rooutil/addHistos.sh ../scale1fbs.txt ../StopAnalysis/StopCORE/METCorr/".format(tar_gz_path))
+        os.system("tar -chJf {} ../setup.sh ../processBaby ../coreutil/data ../CORE/Tools/ ../rooutil/*.sh ../rooutil/hadd.py ../rooutil/addHistos.sh ../scale1fbs.txt ../StopAnalysis/StopCORE/METCorr/".format(tar_gz_path))
 
 #______________________________________________________________________________________
 def submit(dinfos, version_tag, dotestrun=False):
