@@ -216,7 +216,7 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
         # Neat trick to not exit the script for force updating
         print 'Press Ctrl-C to force update, otherwise will sleep for 300 seconds'
         try:
-            for i in range(0,300):
+            for i in range(0,1800):
                 sleep(1) # could use a backward counter to be preeety :)
         except KeyboardInterrupt:
             raw_input("Press Enter to force update, or Ctrl-C to quit.")
