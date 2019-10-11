@@ -358,7 +358,7 @@ void wvzBabyMaker::AddOutput()
         processor->AddModule(new wvzModule::METModule(this));
         processor->AddModule(new wvzModule::JetModule(this));
         processor->AddModule(new wvzModule::FatJetModule(this));
-        processor->AddModule(new wvzModule::AnalysisVariableModule(this));
+        // processor->AddModule(new wvzModule::AnalysisVariableModule(this));
         // if (babyMode == kWVZ or babyMode == kWVZAll or babyMode == kWVZMVA)
         // {
         //     processor->AddModule(new wvzModule::BDTInputVariableModule(this));
