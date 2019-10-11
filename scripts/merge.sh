@@ -30,7 +30,7 @@ echo "args: $@"
 echo -e "\n--- end header output ---\n" #                       <----- section division
 
 # Unpack the passed in tarfile
-tar -xzf package.tar.gz
+tar xvf package.tar.gz
 ls -ltrha
 echo ----------------------------------------------
 
