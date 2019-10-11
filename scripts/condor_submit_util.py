@@ -189,6 +189,9 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
 
             # save some information for the dashboard
             total_summary[task.tag][task.get_sample().get_datasetname()] = task.get_task_summary()
+            print task
+            print task.get_task_summary()
+            print task.complete()
 
             # Aggregate task complete booleans
             all_tasks_complete = all_tasks_complete and task.complete()

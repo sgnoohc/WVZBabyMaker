@@ -11,6 +11,10 @@ void wvzModule::METModule::AddOutput()
 
     tx->createBranch<float>("met_orig_pt");
     tx->createBranch<float>("met_orig_phi");
+    tx->createBranch<float>("met_orig_up_pt");
+    tx->createBranch<float>("met_orig_up_phi");
+    tx->createBranch<float>("met_orig_dn_pt");
+    tx->createBranch<float>("met_orig_dn_phi");
     tx->createBranch<LV>("met_p4");
     tx->createBranch<float>("met_pt");
     tx->createBranch<float>("met_phi");
@@ -41,6 +45,10 @@ void wvzModule::METModule::FillOutput()
     {
         tx->setBranch<float>("met_orig_pt", babymaker->coreMET.met_pt);
         tx->setBranch<float>("met_orig_phi", babymaker->coreMET.met_phi);
+        tx->setBranch<float>("met_orig_up_pt", babymaker->coreMET.met_up_pt);
+        tx->setBranch<float>("met_orig_up_phi", babymaker->coreMET.met_up_phi);
+        tx->setBranch<float>("met_orig_dn_pt", babymaker->coreMET.met_dn_pt);
+        tx->setBranch<float>("met_orig_dn_phi", babymaker->coreMET.met_dn_phi);
         tx->setBranch<LV>("met_p4", RooUtil::Calc::getLV(babymaker->coreMET.met_pt, 0, babymaker->coreMET.met_phi, 0));
         tx->setBranch<float>("met_pt", babymaker->coreMET.met_pt);
         tx->setBranch<float>("met_phi", babymaker->coreMET.met_phi);
@@ -63,6 +71,10 @@ void wvzModule::METModule::FillOutput()
     {
         tx->setBranch<float>("met_orig_pt", babymaker->coreMET.met_pt);
         tx->setBranch<float>("met_orig_phi", babymaker->coreMET.met_phi);
+        tx->setBranch<float>("met_orig_up_pt", babymaker->coreMET.met_up_pt);
+        tx->setBranch<float>("met_orig_up_phi", babymaker->coreMET.met_up_phi);
+        tx->setBranch<float>("met_orig_dn_pt", babymaker->coreMET.met_dn_pt);
+        tx->setBranch<float>("met_orig_dn_phi", babymaker->coreMET.met_dn_phi);
         tx->setBranch<LV>("met_p4", RooUtil::Calc::getLV(metobj_corrected.extras.met, 0, metobj_corrected.extras.phi, 0));
         tx->setBranch<float>("met_pt", metobj_corrected.extras.met);
         tx->setBranch<float>("met_phi", metobj_corrected.extras.phi);
