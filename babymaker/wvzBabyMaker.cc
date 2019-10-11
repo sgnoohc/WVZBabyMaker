@@ -359,11 +359,11 @@ void wvzBabyMaker::AddOutput()
         processor->AddModule(new wvzModule::JetModule(this));
         processor->AddModule(new wvzModule::FatJetModule(this));
         processor->AddModule(new wvzModule::AnalysisVariableModule(this));
-        if (babyMode == kWVZ or babyMode == kWVZAll or babyMode == kWVZMVA)
-        {
-            processor->AddModule(new wvzModule::BDTInputVariableModule(this));
-            processor->AddModule(new wvzModule::BDTModule(this));
-        }
+        // if (babyMode == kWVZ or babyMode == kWVZAll or babyMode == kWVZMVA)
+        // {
+        //     processor->AddModule(new wvzModule::BDTInputVariableModule(this));
+        //     processor->AddModule(new wvzModule::BDTModule(this));
+        // }
     }
 
     // Now create the outputs to the ttree

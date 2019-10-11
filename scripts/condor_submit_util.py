@@ -18,8 +18,11 @@ import subprocess
 
 hadoop_dirname = "wvzbaby"
 
+def UNITY(sample):
+    return 1
+
 #______________________________________________________________________________________
-def get_tasks(samples_dictionary, year, baby_type, baby_version_tag, dotestrun=False):
+def get_tasks(samples_dictionary, year, baby_type, baby_version_tag, dotestrun=False, files_per_output_func=UNITY):
 
     job_tag = "{}{}_{}".format(baby_type, year, baby_version_tag)
 
@@ -72,7 +75,7 @@ def get_tasks(samples_dictionary, year, baby_type, baby_version_tag, dotestrun=F
                 tarfile              = tar_gz_path,
                 special_dir          = hadoop_path,
                 output_name          = "output.root",
-                files_per_output     = 1,
+                files_per_output     = files_per_output_func(sample),
                 # files_per_output     = 1,
                 condor_submit_params = {"sites" : "T2_US_UCSD"},
                 # condor_submit_params = {"sites" : "UAF,T2_US_Wisconsin,T2_US_Florida,T2_US_Nebraska,T2_US_Caltech,T2_US_MIT,T2_US_Purdue"},
@@ -137,10 +140,14 @@ def create_tar_ball(year, baby_type, baby_version_tag):
     os.chdir(main_dir)
     exists = os.path.isfile(tar_gz_path)
     if not exists:
-        os.system("tar -chJf {} ../setup.sh ../processBaby ../coreutil/data ../CORE/Tools/ ../rooutil/*.sh ../rooutil/hadd.py ../rooutil/addHistos.sh ../scale1fbs.txt ../StopAnalysis/StopCORE/METCorr/".format(tar_gz_path))
+        os.system("git rev-parse HEAD > ../gitversion.txt")
+        os.system("git status >> ../gitversion.txt")
+        os.system("git diff >> ../gitversion.txt")
+        os.system("git log >> ../gitversion.txt")
+        os.system("tar -chJf {} ../gitversion.txt ../setup.sh ../processBaby ../coreutil/data ../CORE/Tools/ ../rooutil/*.sh ../rooutil/hadd.py ../rooutil/addHistos.sh ../scale1fbs.txt ../StopAnalysis/StopCORE/METCorr/".format(tar_gz_path))
 
 #______________________________________________________________________________________
-def submit(dinfos, version_tag, dotestrun=False):
+def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
 
     # Loop
     while True:
@@ -158,11 +165,12 @@ def submit(dinfos, version_tag, dotestrun=False):
 
             # Get all the tasks for this campaign
             this_set_of_tasks = get_tasks(
-                    samples_dictionary = dinfos[campaign]["samples"],
-                    year               = dinfos[campaign]["year"],
-                    baby_type          = dinfos[campaign]["baby_type"],
-                    baby_version_tag   = version_tag,
-                    dotestrun          = dotestrun,
+                    samples_dictionary    = dinfos[campaign]["samples"],
+                    year                  = dinfos[campaign]["year"],
+                    baby_type             = dinfos[campaign]["baby_type"],
+                    baby_version_tag      = version_tag,
+                    dotestrun             = dotestrun,
+                    files_per_output_func = files_per_output_func,
                     )
 
             # Need separate dictionaries for each tag in order to let StatsParsers uniquely handle same dataset name jobs.

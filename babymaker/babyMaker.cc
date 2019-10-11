@@ -18,11 +18,11 @@ babyMaker::~babyMaker()
 int babyMaker::ProcessCMS4(TString filepaths, int max_events, int idx, bool verbose)
 {
 
-    // Create output (e.g. output TFile, TTree, nevents histograms)
-    CreateOutput();
-
     // Initializer job index
     job_index = idx;
+
+    // Create output (e.g. output TFile, TTree, nevents histograms)
+    CreateOutput();
 
     //
     //

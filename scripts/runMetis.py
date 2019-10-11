@@ -431,6 +431,26 @@ def get_master_list():
 
     return dinfos
 
+
+def chunking_func(sample):
+
+    # Function that determines how many CMS4 files per job to run
+
+    if any(x in sample for x in [
+        "/WWZ", "/HZJ", "/GluGluToCon", "/GluGluZH", "/ST_tWll",
+        ]):
+        return 5
+
+    if any(x in sample for x in [
+        "/ZZTo4L", "/WWZ", "/WZZ", "/ZZZ", "/HZJ", "/GluGluToCon", "/GluGluZH", "/ST_tWll",
+        ]):
+        return 10
+
+    else:
+        return 20
+
+
+
 #################################################################################################################################################################################################
 # SUBMIT JOBS
 #################################################################################################################################################################################################
@@ -504,6 +524,6 @@ if __name__ == "__main__":
     if "WVZSIG2017" in args.sample_sets:
         master_list["wvzsig_2017_94x"] = grand_master_list["wvzsig_2017_94x"]
 
-    submit(master_list, args.tag, dotestrun=args.test)
+    submit(master_list, args.tag, dotestrun=args.test, files_per_output_func=chunking_func)
 
 #eof

@@ -79,6 +79,8 @@ fi
 # Output job index
 INDEX=1
 
+echo ">>> cat gitversion.txt"
+cat gitversion.txt
 echo ">>> source setup.sh"
 source setup.sh
 echo ">>> ls -l"
