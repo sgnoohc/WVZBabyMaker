@@ -77,10 +77,10 @@ echo -e "\n--- end running ---\n" #                             <----- section d
 #     gfal-copy -p -f -t 4200 --verbose file://`pwd`/$mergeout gsiftp://gftp.t2.ucsd.edu${mergeout_folder}/${mergeout} --checksum ADLER32
 # done
 
-# gfal-copy -p -f -t 4200 --verbose file://`pwd`/${OUTPUTNAME}.root gsiftp://gftp.t2.ucsd.edu${mergeout_folder}/${OUTPUTNAME}.root --checksum ADLER32
+gfal-copy -p -f -t 4200 --verbose file://`pwd`/${OUTPUTNAME}.root gsiftp://gftp.t2.ucsd.edu${mergeout_folder}/${OUTPUTNAME}.root --checksum ADLER32
 
-mkdir -p ${mergeout_folder}
-cp ${OUTPUTNAME}.root ${mergeout_folder}/${OUTPUTNAME}_1.root
+# mkdir -p ${mergeout_folder}
+# cp ${OUTPUTNAME}.root ${mergeout_folder}/${OUTPUTNAME}_1.root
 
 echo -e "\n--- cleaning up ---\n" #                             <----- section division
 rm -r *.root

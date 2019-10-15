@@ -49,16 +49,28 @@ void babyMaker::ScanChain(TString filepaths, int max_events, bool verbose)
 
         std::cout <<  " filepath: " << filepath <<  std::endl;
 
-        // Create TChain to process
-        //   - From the filepaths (e.g. filepaths="file.root,file2.root,...") create a TChain
-        TChain* chain = RooUtil::FileUtil::createTChain("Events", filepath);
-
-        // Initialize Looper
-        looper.init(chain, &cms3, max_events);
-
         // Try catch statement there to catch any CMS4 ntuple TTree event I/O failure
         try
         {
+
+            // Skipping known bad files
+            if (
+                    filepath.Contains("run2_mc2018//ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v4_MINIAODSIM_CMS4_V10-02-06/merged_ntuple_11.root") or
+                    filepath.Contains("run2_mc2016_94x/ZZTo4L_13TeV_powheg_pythia8_ext1_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2_MINIAODSIM_CMS4_V10-02-05/merged_ntuple_113.root")
+                )
+            {
+                std::cout << "Known bad file found" << std::endl;
+                std::cout << "Skipping ... " << filepath << std::endl;
+                continue;
+            }
+
+            // Create TChain to process
+            //   - From the filepaths (e.g. filepaths="file.root,file2.root,...") create a TChain
+            TChain* chain = RooUtil::FileUtil::createTChain("Events", filepath);
+
+            // Initialize Looper
+            looper.init(chain, &cms3, max_events);
+
 
             // The looper object will handle accessing each events
             // The CMS3.cc object throws std::ios_base::failure exception if the input CMS3/4 files are corrupted.
@@ -84,6 +96,10 @@ void babyMaker::ScanChain(TString filepaths, int max_events, bool verbose)
                 FillGenWeights();
 
             }
+
+            // Print status before exiting (for monitoring performance)
+            looper.printStatus();
+
 
         }
         catch (const std::ios_base::failure& e)
@@ -116,10 +132,6 @@ void babyMaker::ScanChain(TString filepaths, int max_events, bool verbose)
                 //     break;
             }
         }
-
-        // Print status before exiting (for monitoring performance)
-        looper.printStatus();
-
     }
 
     return;

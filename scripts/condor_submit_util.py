@@ -8,6 +8,7 @@ from time import sleep
 
 from metis.Sample import DirectorySample, SNTSample
 from metis.CondorTask import CondorTask
+from metis.LocalMergeTask import LocalMergeTask
 
 from metis.StatsParser import StatsParser
 
@@ -101,27 +102,61 @@ def get_tasks(samples_dictionary, year, baby_type, baby_version_tag, dotestrun=F
 
             merge_sample_name = "/MERGE_"+sample[1:]
 
-            merge_task = CondorTask(
-                    sample                 = DirectorySample(dataset=merge_sample_name, location=maker_task.get_outputdir()),
-                    # open_dataset         = True, flush = True,
-                    executable             = merge_exec_path,
-                    tarfile                = tar_gz_path,
-                    files_per_output       = 1,
-                    output_dir             = maker_task.get_outputdir() + "/merged",
-                    output_name            = samples_dictionary[sample] + ".root",
-                    condor_submit_params   = {"sites":"UAF"},
-                    output_is_tree         = True,
-                    # check_expectedevents = True,
-                    tag                    = job_tag,
-                    cmssw_version          = "CMSSW_9_2_0",
-                    scram_arch             = "slc6_amd64_gcc530",
-                    #no_load_from_backup    = True,
-                    max_jobs               = 1,
-                    )
-            merge_task.reset_io_mapping()
-            merge_task.update_mapping()
+            #merge_task = CondorTask(
+            #        sample                 = DirectorySample(dataset=merge_sample_name, location=maker_task.get_outputdir()),
+            #        # open_dataset         = True, flush = True,
+            #        executable             = merge_exec_path,
+            #        tarfile                = tar_gz_path,
+            #        files_per_output       = 1,
+            #        output_dir             = maker_task.get_outputdir() + "/merged",
+            #        output_name            = samples_dictionary[sample] + ".root",
+            #        condor_submit_params   = {"sites":"T2_US_UCSD"},
+            #        output_is_tree         = True,
+            #        # check_expectedevents = True,
+            #        tag                    = job_tag,
+            #        cmssw_version          = "CMSSW_9_2_0",
+            #        scram_arch             = "slc6_amd64_gcc530",
+            #        #no_load_from_backup    = True,
+            #        max_jobs               = 1,
+            #        )
+            # merge_task.reset_io_mapping()
+            # merge_task.update_mapping()
+            # tasks.append(merge_task)
 
-            tasks.append(merge_task)
+            # merge_task = LocalMergeTask(
+            #         input_filenames=maker_task.get_outputs(),
+            #         output_filename="{}/{}.root".format(maker_task.get_outputdir() + "/merged", samples_dictionary[sample]),
+            #         ignore_bad = False,
+            #         )
+
+            input_arg = maker_task.get_outputs()[0].name.replace("_1.root", "")
+            hadd_command = "sh ../rooutil/addHistos.sh /tmp/{}_1 {}".format(samples_dictionary[sample], input_arg)
+            hadoop_output = "{}/{}_1.root".format(maker_task.get_outputdir() + "/merged", samples_dictionary[sample])
+            cp_command = "cp /tmp/{}_1.root {}".format(samples_dictionary[sample], hadoop_output)
+
+            print ""
+            print ""
+            print ""
+            print ""
+            print ""
+
+            print hadoop_output
+
+            if not os.path.exists(hadoop_output):
+
+                print hadd_command
+                # os.system(hadd_command)
+                print cp_command
+                # os.system(cp_command)
+
+            print ""
+            print ""
+            print ""
+            print ""
+
+            # if not merge_task.complete():
+            #     merge_task.process()
+
 
     # <------ END Sample Loop
 
@@ -181,6 +216,8 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
             # Add to the master list of tasks
             tasks += this_set_of_tasks
 
+        return
+
         # Loop over all the tasks
         for task in tasks:
 
@@ -189,9 +226,6 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
 
             # save some information for the dashboard
             total_summary[task.tag][task.get_sample().get_datasetname()] = task.get_task_summary()
-            print task
-            print task.get_task_summary()
-            print task.complete()
 
             # Aggregate task complete booleans
             all_tasks_complete = all_tasks_complete and task.complete()
@@ -219,7 +253,7 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
         # Neat trick to not exit the script for force updating
         print 'Press Ctrl-C to force update, otherwise will sleep for 300 seconds'
         try:
-            for i in range(0,1800):
+            for i in range(0,300):
                 sleep(1) # could use a backward counter to be preeety :)
         except KeyboardInterrupt:
             raw_input("Press Enter to force update, or Ctrl-C to quit.")
