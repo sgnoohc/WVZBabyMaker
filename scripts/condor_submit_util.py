@@ -216,8 +216,6 @@ def submit(dinfos, version_tag, dotestrun=False, files_per_output_func=UNITY):
             # Add to the master list of tasks
             tasks += this_set_of_tasks
 
-        return
-
         # Loop over all the tasks
         for task in tasks:
 
