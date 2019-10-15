@@ -317,7 +317,7 @@ bool wvzBabyMaker::PassSelection()
             if (isPt10VVVAnalysisVetoMuon(imu))
                 nVetoLep++;
         }
-        if (nVetoLep < 4)
+        if (nVetoLep < 2)
             return false;
         if (nLepPt25 < 2)
             return false;
