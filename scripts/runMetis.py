@@ -434,6 +434,8 @@ def get_master_list():
 
 def chunking_func(sample):
 
+    return 1
+
     # Function that determines how many CMS4 files per job to run
 
     if any(x in sample for x in [
